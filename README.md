@@ -192,6 +192,8 @@ app/
 static/              frontend sem build: app.js, karaoke.js, offline.js, CSS
 test_api.py          testes da API
 start.sh             inicialização
+.githooks/           trava que impede publicar segredo ou dado pessoal
+LICENSE              licença MIT
 ```
 
 O frontend é JavaScript puro, sem passo de build: editar um arquivo e recarregar
@@ -210,9 +212,7 @@ e [LRCLIB](https://lrclib.net/). No navegador:
 
 ## Licença
 
-Nenhuma licença definida ainda — sem uma, os direitos ficam reservados por
-padrão. Se a ideia é manter o repositório aberto, vale escolher uma (MIT e
-Apache-2.0 são as mais comuns para projetos assim).
+[MIT](LICENSE).
 
 ## Aviso
 
