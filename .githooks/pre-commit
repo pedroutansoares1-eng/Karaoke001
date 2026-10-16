@@ -41,7 +41,9 @@ for arq in "${ARQUIVOS[@]}"; do
     fi
 
     # Esta própria trava contém os padrões que procura — não se audita.
-    case "$arq" in .githooks/*) continue ;; esac
+    # O LICENSE também é exceção: o titular dos direitos autorais é público por
+    # natureza, e o nome dele ali é intencional.
+    case "$arq" in .githooks/*|LICENSE|LICENSE.*|COPYING|COPYING.*) continue ;; esac
 
     # 2. Tamanho (mídia, modelo, banco disfarçado com outro nome).
     tam=$(git cat-file -s ":$arq" 2>/dev/null || echo 0)
