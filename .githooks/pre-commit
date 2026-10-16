@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#
+# Trava de publicação do Karaokê de Casa.
+#
+# Roda antes de cada commit e RECUSA se algo que não pode ser publicado estiver
+# entrando: cookies de sessão (YouTube/Google), .env, banco de dados, a
+# biblioteca baixada (data/), os ambientes virtuais, arquivos grandes ou
+# qualquer informação pessoal.
+#
+# O .gitignore já cobre o caso normal. Esta trava cobre o caso anormal:
+# o `git add -f`, o arquivo copiado de outro lugar, o que foi renomeado.
+#
+# Instalar num clone novo (fica gravado no git local, não no repositório):
+#     git config core.hooksPath .githooks
+#
+# Ignorar a trava quando você conhece o caso (por sua conta e risco):
+#     git commit --no-verify
+#
+set -uo pipefail
+
+# --- o que não pode ser versionado (caminho do arquivo) -----------------------
+CAMINHOS_PROIBIDOS='(^|/)(venv|\.venv|data|__pycache__|\.pytest_cache|\.vscode)/|cookies|\.env$|\.sqlite3|\.pyc$'
+
+# --- o que não pode aparecer dentro de um arquivo publicado -------------------
+# Sessão do YouTube/Google, caminhos desta máquina, nome do dono e IP da rede.
+CONTEUDO_PROIBIDO='__Secure-1PSID|SAPISID|LOGIN_INFO|VISITOR_PRIVACY|\bpedro\b|/home/pedro|192\.168\.1\.220'
+
+# --- arquivos grandes quase sempre são mídia, modelo ou banco disfarçado ------
+LIMITE_BYTES=5242880   # 5 MB
+
+# Arquivos entrando neste commit (novos, modificados ou copiados).
+mapfile -t ARQUIVOS < <(git diff --cached --name-only --diff-filter=ACM)
+
+FALHAS=()
+
+for arq in "${ARQUIVOS[@]}"; do
+    # 1. O caminho em si é proibido?
+    if printf '%s' "$arq" | grep -qE "$CAMINHOS_PROIBIDOS"; then
+        FALHAS+=("não pode ir para o GitHub: $arq")
+        continue
+    fi
+
+    # Esta própria trava contém os padrões que procura — não se audita.
+    case "$arq" in .githooks/*) continue ;; esac
+
+    # 2. Tamanho (mídia, modelo, banco disfarçado com outro nome).
+    tam=$(git cat-file -s ":$arq" 2>/dev/null || echo 0)
+    if [ "${tam:-0}" -gt "$LIMITE_BYTES" ]; then
+        legivel=$(numfmt --to=iec "$tam" 2>/dev/null || printf '%s bytes' "$tam")
+        FALHAS+=("arquivo grande demais ($legivel): $arq")
+        continue
+    fi
+
+    # 3. O conteúdo que vai ser commitado tem segredo ou dado pessoal?
+    #    (lê o que está preparado, não o que está no disco agora)
+    while IFS=: read -r linha achado; do
+        [ -z "${linha:-}" ] && continue
+        FALHAS+=("conteúdo suspeito em $arq:$linha ($achado)")
+    done < <(git show ":$arq" 2>/dev/null | grep -ainEo "$CONTEUDO_PROIBIDO" | head -5)
+done
+
+if [ "${#FALHAS[@]}" -gt 0 ]; then
+    printf '\n'
+    printf '🚨 COMMIT BLOQUEADO — %d problema(s):\n\n' "${#FALHAS[@]}"
+    for f in "${FALHAS[@]}"; do
+        printf '   • %s\n' "$f"
+    done
+    printf '\n   Nada foi commitado.\n\n'
+    printf '   Como resolver:\n'
+    printf '     • tirar o arquivo do commit:  git restore --staged <arquivo>\n'
+    printf '     • se for segredo, remova do arquivo — e troque a credencial\n'
+    printf '     • se você conhece o caso e quer mesmo assim: git commit --no-verify\n\n'
+    exit 1
+fi
+
+exit 0

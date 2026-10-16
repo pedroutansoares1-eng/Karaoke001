@@ -122,6 +122,31 @@ Qualquer aparelho na sua rede alcança a API. Por isso:
 - O arquivo `data/` e os `cookies*.txt`/`cookies*.json` (sessão do yt-dlp) ficam
   fora do controle de versão pelo `.gitignore`. **Não os publique.**
 
+## Antes de publicar
+
+O `.gitignore` mantém fora do repositório o `data/`, os cookies de sessão, o
+banco e os ambientes virtuais. Mas ignore não protege contra um `git add -f`.
+Por isso existe uma trava em `.githooks/pre-commit`, que roda a cada commit e
+**recusa** o que não pode ser publicado: cookies, `.env`, banco, `data/`,
+`venv`, arquivo acima de 5 MB ou qualquer informação pessoal (caminho da
+máquina, IP da rede local, nome do dono).
+
+Ela se ativa uma vez por clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Para ver a trava em ação, prepare algo proibido e tente commitar:
+
+```bash
+git add -f cookies.txt
+git commit -m "teste"     # deve ser bloqueado
+```
+
+E, se for um caso que você conhece e quer mesmo assim:
+`git commit --no-verify`.
+
 ## API
 
 Tudo em JSON, servido pelo FastAPI. Os principais:
