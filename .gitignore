@@ -1,0 +1,45 @@
+# ==========================================================================
+# Segredos e dados locais — NUNCA publicar
+# ==========================================================================
+# cookies.json / cookies_netscape.txt guardam a sessão do YouTube (yt-dlp).
+# Publicá-los equivale a entregar a conta.
+.env
+cookies*.txt
+cookies*.json
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+
+# ==========================================================================
+# Biblioteca baixada e mídia (conteúdo de terceiros + seus dados)
+# ==========================================================================
+# data/ tem os MP3 baixados, os stems separados, letras e afinações.
+# Além de ser conteúdo com direitos autorais, é a sua biblioteca pessoal.
+data/
+
+# ==========================================================================
+# Ambientes virtuais
+# ==========================================================================
+venv/
+.venv/
+
+# ==========================================================================
+# Python
+# ==========================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# ==========================================================================
+# Editores e sistema
+# ==========================================================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

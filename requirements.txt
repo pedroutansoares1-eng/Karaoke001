@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+yt-dlp
+demucs
+librosa
+requests
+torch
+numpy
+python-multipart
+syncedlyrics

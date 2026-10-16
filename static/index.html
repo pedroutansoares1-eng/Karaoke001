@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#09090b">
+<meta name="description" content="Karaokê de casa — cante com amigos, letras sincronizadas, sem complicação.">
+<title>Karaokê de Casa</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css?v=20261016f">
+<script>
+// Aplica o tema antes da renderização para evitar "flash" de tema errado.
+(function(){
+  try {
+    var salvo = localStorage.getItem('karaoke-theme');
+    var prefereClaro = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    var tema = salvo || (prefereClaro ? 'light' : 'dark');
+    if (tema === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+
+<a class="pular-para" href="#conteudo">Pular para o conteúdo</a>
+<button class="mobile-tabs-trigger" id="mobileTabsTrigger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileTabsDrawer">
+  <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></span>
+</button>
+<div id="mobileTabsBackdrop" class="mobile-tabs-backdrop" hidden></div>
+<div id="mobileTabsDrawer" class="mobile-tabs-drawer" role="navigation" aria-label="Menu de seções">
+  <div class="drawer-head">
+    <strong>Karaokê de Casa</strong>
+    <button id="mobileTabsClose" aria-label="Fechar menu"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span></button>
+  </div>
+  <ul class="drawer-tabs">
+    <li class="active" data-tab="welcome">✦ Início</li>
+    <li data-tab="search">⌕ Buscar</li>
+    <li data-tab="party">❖ Festa</li>
+    <li data-tab="player">◉ Player</li>
+    <li data-tab="separation">✂ Separar</li>
+    <li data-tab="diagnostics">♧ Sistema</li>
+    <li data-tab="ranking">★ Ranking</li>
+  </ul>
+</div>
+<div id="conexaoBanner" class="conexao-banner" role="status" hidden>
+  <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path d="M12 3v10"></path><path d="M12 17v-4"></path></svg></span> Sem conexão com o anfitrião — tentando reconectar…
+  <button id="reconnectBtn" type="button">Tentar agora</button>
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">♪</span><span>Karaokê de Casa</span></a>
+    <nav class="tabs" role="tablist" aria-label="Seções do aplicativo">
+      <button class="tab active" role="tab" aria-selected="true" aria-controls="welcome" data-tab="welcome">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
+        <span>Início</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="search" data-tab="search">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <span>Buscar</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="party" data-tab="party">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 10c0 2-2 4-4.5 4-2.5 0-4.5-2-4.5-4s2-4 4.5-4c2.5 0 4.5 2 4.5 4z"></path><path d="M9.3 20A9 9 0 0 1 12 2a9 9 0 0 1 2.7 18M12 22a9 9 0 0 1-2.7-2"/></svg></span>
+        <span>Festa</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="player" data-tab="player">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path d="M12 3v10"></path><path d="M12 17v-4"></path></svg></span>
+        <span>Player</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="separation" data-tab="separation">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="12" cy="18" r="3"></circle><path d="M6 6h12v12H6z"></path></svg></span>
+        <span>Separar</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="diagnostics" data-tab="diagnostics">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg></span>
+        <span>Sistema</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="ranking" data-tab="ranking">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
+        <span>Ranking</span>
+      </button>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema">
+      <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+    <button class="profile" type="button" aria-label="Perfil do cantor" title="Perfil do cantor">
+      <span class="profile-avatar" aria-hidden="true">C</span>
+      <span class="profile-name" id="profileName">Convidado<small id="profileHint">Toque para ver seu perfil</small></span>
+    </button>
+  </div>
+</header>
+
+<main class="shell" id="conteudo">
+  <section id="welcome" class="tab-panel active" role="tabpanel" aria-labelledby="welcome">
+    <div class="welcome-hero">
+      <span class="eyebrow">KARAOKÊ EM REDE LOCAL</span>
+      <h1 class="cta-highlight">Sua festa merece um <em>karaokê de verdade.</em></h1>
+      <p>Conecte os celulares dos convidados pelo QR Code, escolham as músicas e cantem com letras sincronizadas e pontuação ao vivo.</p>
+    </div>
+
+    <div class="welcome-grid">
+      <div class="glass welcome-qr-card">
+        <div class="qr-wrapper">
+          <div id="qrCode" role="img" aria-label="QR Code com o endereço de acesso"></div>
+        </div>
+        <span class="qr-url-label" id="qrUrlLabel">http://localhost:8098</span>
+        <small class="muted" id="qrHint">Escaneie com a câmera do celular.</small>
+      </div>
+
+      <div class="glass welcome-steps-card">
+        <h3>Como funciona</h3>
+        <div class="welcome-steps">
+          <div class="step-item">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Escaneie o QR Code</strong>
+              <p>Abra a câmera do celular e acesse o app direto no navegador — sem instalar nada.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Escolha suas músicas</strong>
+              <p>Busque no YouTube, baixe e aguarde a separação automática da voz e do instrumental.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Solte a voz!</strong>
+              <p>Cante com letras sincronizadas, afinação em tempo real e receba sua pontuação.</p>
+            </div>
+          </div>
+        </div>
+        <div class="welcome-action">
+          <button id="startPartyBtn" class="primary" style="font-size:15px; padding:14px 28px; width:100%"><span class="tab-icon" style="margin-right:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span>Pega o mic</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="search" class="tab-panel" role="tabpanel" aria-labelledby="search">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">BIBLIOTECA</span>
+        <h1>Encontre sua próxima<br><em>performance.</em></h1>
+        <p>Busque qualquer música, baixe o áudio e comece a cantar em minutos.</p>
+      </div>
+    </div>
+    <div class="search-box">
+      <span aria-hidden="true">⌕</span>
+      <label class="sr-only" for="query">Buscar por artista ou música</label>
+      <input id="query" type="search" autocomplete="off" placeholder="Busque por artista ou música...">
+      <button id="searchBtn" class="primary">Buscar</button>
+    </div>
+    <div class="search-box playlist-box">
+      <span aria-hidden="true">☰</span>
+      <label class="sr-only" for="playlistUrl">URL da playlist para baixar</label>
+      <input id="playlistUrl" type="url" autocomplete="off"
+             placeholder="Cole a URL de uma playlist do YouTube para baixar todas as músicas...">
+      <button id="playlistBtn" class="secondary" type="button">Baixar playlist</button>
+    </div>
+    <label class="playlist-preparar" for="playlistPreparar">
+      <input type="checkbox" id="playlistPreparar" checked>
+      <span>Já deixar tudo pronto pra cantar <em>(separa a voz e busca a letra e a afinação de cada música)</em></span>
+    </label>
+    <p class="playlist-hint muted">No YouTube, abra a playlist e copie o endereço da barra. Com a opção marcada, cada música fica pronta pra cantar sozinha — leva bem mais tempo, mas ninguém precisa preparar nada na hora da festa.</p>
+    <div id="playlistList" class="playlist-list" hidden></div>
+    <div class="search-filters">
+      <label for="searchFilter">Filtro</label>
+      <select id="searchFilter">
+        <option value="qualquer">Qualquer</option>
+        <option value="estudio" selected>Só estúdio (áudio oficial)</option>
+        <option value="ao_vivo">Ao vivo</option>
+        <option value="instrumental">Instrumental</option>
+        <option value="karaoke">Karaokê</option>
+      </select>
+      <span class="muted">"Só estúdio" prioriza áudio oficial e esconde shows.</span>
+      <label for="searchSource">Fonte</label>
+      <select id="searchSource" title="YouTube Music traz artista e título mais limpos — melhor para achar a letra">
+        <option value="youtube">YouTube</option>
+        <option value="ytmusic" selected>YouTube Music</option>
+      </select>
+      <span class="muted">YouTube Music acha a letra com mais precisão.</span>
+    </div>
+    <div class="section-heading">
+      <div><span class="eyebrow">RESULTADOS</span><h2>Descubra novas faixas</h2></div>
+      <div class="results-tools">
+        <span id="resultCount" class="muted"></span>
+        <button id="moreResults" class="secondary" type="button" hidden>Mostrar mais</button>
+      </div>
+    </div>
+    <div id="results" class="card-grid empty-state">
+      <div class="empty-icon" aria-hidden="true">⌕</div>
+      <p>Digite pelo menos 2 caracteres para começar.</p>
+    </div>
+  </section>
+
+  <section id="party" class="tab-panel" role="tabpanel" aria-labelledby="party">
+    <div id="guestBanner" class="guest-banner" hidden>
+      Você está no <strong>Modo Convidado</strong>: controle o player e peça músicas pelo celular.
+      <a href="/?convidado=0">É o anfitrião? Sair</a>
+    </div>
+
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">MODO FESTA</span>
+        <h2>Fila da festa</h2>
+        <p>Os convidados que escanearem o QR Code adicionam músicas e controlam o player no celular, em tempo real.</p>
+      </div>
+      <div class="party-status">
+        <span id="partyConn" class="conn-pill off" role="status">● conectando…</span>
+        <span id="partyGuests" class="conn-pill" role="status">0 aparelhos</span>
+        <button id="partyNext" class="primary" type="button">▶ Tocar próxima</button>
+        <button id="partyClear" class="secondary" type="button">Limpar fila</button>
+      </div>
+    </div>
+
+    <div class="party-layout">
+      <div class="glass party-queue">
+        <span class="eyebrow">TOCANDO AGORA</span>
+        <div id="partyNow" class="now-track empty">
+          <span class="now-track-placeholder">♪</span>
+          <p>Nada tocando — escolham em "Próximas".</p>
+        </div>
+        <span class="eyebrow" style="margin-top:24px">PRÓXIMAS MÚSICAS</span>
+        <div id="partyList" class="party-list" aria-live="polite">
+          <div class="empty-state"><div class="empty-icon" aria-hidden="true">🎉</div><p>A fila está vazia. Adicione músicas da biblioteca ao lado.</p></div>
+        </div>
+      </div>
+
+      <aside class="party-side">
+        <div class="glass">
+          <span class="eyebrow">CONTROLE REMOTO</span>
+          <p class="muted">Funciona em qualquer aparelho conectado à festa.</p>
+          <div class="remote-row">
+            <button id="rcPrev" class="control" type="button" aria-label="Faixa anterior">◀|</button>
+            <button id="rcToggle" class="play-button" type="button" aria-label="Reproduzir ou pausar">▶</button>
+            <button id="rcNext" class="control" type="button" aria-label="Próxima faixa">|▶</button>
+          </div>
+          <label class="slider-field">
+            <span class="slider-head">Volume <output id="rcVolumeOut">100%</output></span>
+            <input id="rcVolume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume remoto">
+          </label>
+          <button id="rcOpen" class="secondary" type="button">🎤 Abrir karaokê no anfitrião</button>
+        </div>
+
+        <div class="glass">
+          <span class="eyebrow">ADICIONAR DA BIBLIOTECA</span>
+          <label class="sr-only" for="partySearch">Filtrar faixas da biblioteca</label>
+          <input id="partySearch" type="search" autocomplete="off" placeholder="Filtrar biblioteca...">
+          <div id="partyLibrary" class="party-library" aria-live="polite"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="player" class="tab-panel" role="tabpanel" aria-labelledby="player">
+    <div class="section-heading">
+      <div><span class="eyebrow emphasis">AGORA TOCANDO</span><h2 class="cta-highlight">Seu estúdio</h2>
+      <p>Escolha uma faixa e comece a cantar.</p></div>
+    </div>
+    <div class="player-layout">
+      <aside class="glass track-sidebar">
+        <div class="sidebar-title">
+          <span>Suas faixas</span>
+          <div class="track-actions">
+             <button class="icon-button" id="favFilter" aria-label="Filtrar por favoritas" aria-pressed="false" title="Mostrar só favoritas">★</button>
+             <button class="icon-button" id="refreshCovers" aria-label="Buscar capas" title="Buscar capas">▣</button>
+             <button class="icon-button" id="refreshTracks" aria-label="Atualizar lista" title="Atualizar">↻</button>
+           </div>
+        </div>
+        <div class="player-search">
+          <span aria-hidden="true">⌕</span>
+          <label class="sr-only" for="playerQuery">Buscar música na biblioteca ou no YouTube</label>
+          <input id="playerQuery" type="search" autocomplete="off" placeholder="Buscar música...">
+          <button id="playerSearchBtn" class="primary" type="button">Buscar</button>
+        </div>
+        <div id="playerResults" class="player-results" aria-live="polite" hidden></div>
+        <div id="tracks" class="track-list"></div>
+      </aside>
+      <div class="glass main-player">
+        <div class="album-art" id="albumArt" aria-hidden="true"><span>♪</span></div>
+        <div class="player-core">
+          <span class="eyebrow emphasis" id="playerArtist">PRONTO PARA CANTAR</span>
+          <h2 id="playerTitle" class="cta-highlight">Selecione uma faixa</h2>
+          <div id="lyricsPreview" class="lyrics-preview" aria-live="polite" hidden>
+            <p id="lyricsCurrent" class="lyrics-line current"></p>
+            <p id="lyricsNext" class="lyrics-line next"></p>
+          </div>
+          <div class="progress-wrap">
+            <div class="time-row">
+              <span id="currentTime" class="sr-only">0:00</span>
+              <span id="duration" class="time-total">0:00 / 0:00</span>
+            </div>
+            <label class="sr-only" for="progress">Progresso da faixa</label>
+            <div class="progress-slider" id="progressSlider">
+              <span id="progressTip" class="progress-tip" role="tooltip" hidden></span>
+              <input id="progress" type="range" min="0" max="100" value="0" step="0.1" aria-valuetext="0:00 de 0:00" aria-label="Progresso da faixa">
+            </div>
+          </div>
+          <div class="player-controls">
+            <button class="control" id="prevTrack" aria-label="Faixa anterior" title="Faixa anterior"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><line x1="19" y1="12" x2="5" y2="12"></line></svg></span></button>
+            <button class="play-button" id="playPause" aria-label="Reproduzir ou pausar" title="Reproduzir ou pausar"><span class="tab-icon icon-play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></span><span class="tab-icon icon-pause"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></span></button>
+            <button class="control" id="nextTrack" aria-label="Próxima faixa" title="Próxima faixa"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><line x1="5" y1="12" x2="19" y2="12"></line></svg></span></button>
+            <div class="volume-control">
+              <button class="control" id="muteToggle" type="button" aria-label="Silenciar" aria-pressed="false" title="Silenciar"><span class="tab-icon icon-volume"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></span><span class="tab-icon icon-muted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></span></button>
+              <label class="sr-only" for="volume">Volume</label>
+              <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+            </div>
+          </div>
+          <div class="player-tools" role="group" aria-label="Ferramentas do player">
+            <button class="tool" id="queueBtn" type="button" aria-label="Abrir fila da festa" title="Fila da festa"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="6" x2="16" y2="6"></line><line x1="8" y1="18" x2="16" y2="18"></line></svg></span> <span>Fila</span></button>
+            <button class="tool" id="vocalBtn" type="button" aria-pressed="false" aria-label="Remover voz (tocar instrumental)" title="Remover voz"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span> <span>Voz</span></button>
+            <button class="tool" id="fullscreenBtn" type="button" aria-label="Tela cheia" title="Tela cheia"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 3h-3a2 2 0 0 0-2 2v3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></span> <span>Tela cheia</span></button>
+          </div>
+          <button id="karaokeButton" class="karaoke-button"><span class="tab-icon" style="margin-right:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span><span>Entrar no Karaokê</span></button>
+        </div>
+        <audio id="audio" preload="metadata"></audio>
+        <audio id="previewAudio" preload="none"></audio>
+      </div>
+    </div>
+  </section>
+
+  <section id="separation" class="tab-panel" role="tabpanel" aria-labelledby="separation">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">PROCESSAMENTO DE ÁUDIO</span>
+        <h2 class="cta-highlight">Separação de stems</h2>
+        <p>Separe vocais e instrumental automaticamente. Pode levar alguns minutos por música.</p>
+      </div>
+      <div class="heading-tools">
+        <label class="quality-picker" for="separationQuality">
+          Qualidade
+          <select id="separationQuality">
+            <option value="rapida">Rápida</option>
+            <option value="equilibrada" selected>Equilibrada</option>
+            <option value="alta">Alta (menos vazamento)</option>
+          </select>
+        </label>
+        <button id="prepareAllBtn" class="primary" type="button"
+                title="Separa a voz e busca a letra e a afinação de todas as músicas baixadas">🎤 Preparar tudo pra cantar</button>
+      </div>
+    </div>
+    <p id="prepareAllInfo" class="hint-line" hidden></p>
+    <div id="separations" class="stack-list" aria-live="polite"></div>
+  </section>
+
+  <section id="diagnostics" class="tab-panel" role="tabpanel" aria-labelledby="diagnostics">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">STATUS DO SISTEMA</span>
+        <h2 class="cta-highlight">Diagnóstico</h2>
+        <p>Verifique se todas as dependências estão instaladas e prontas.</p>
+      </div>
+      <button id="diagnosticsButton" class="primary">Rodar verificação</button>
+    </div>
+    <div id="diag" class="diagnostic-grid">
+      <div class="empty-state"><div class="empty-icon" aria-hidden="true">♧</div><p>Clique em "Rodar verificação" para começar.</p></div>
+    </div>
+  </section>
+
+  <section id="ranking" class="tab-panel" role="tabpanel" aria-labelledby="ranking">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">HALL DA FAMA</span>
+        <h2 class="cta-highlight">Ranking dos cantores</h2>
+        <p>As melhores performances da festa, ordenadas pela pontuação.</p>
+      </div>
+      <div class="ranking-actions">
+        <button id="refreshRanking" class="primary">Atualizar</button>
+        <button id="clearRanking" class="secondary">Zerar</button>
+      </div>
+    </div>
+
+    <div class="glass singer-box">
+      <label for="singerName">Seu nome</label>
+      <input id="singerName" type="text" maxlength="40" autocomplete="off" placeholder="Ex.: Ana, João, DJ...">
+      <button id="saveSinger" class="primary">Salvar</button>
+    </div>
+
+    <div id="rankingList" class="ranking-list" aria-live="polite">
+      <div class="empty-state"><div class="empty-icon" aria-hidden="true">★</div><p>Ninguém cantou ainda. Seja o primeiro!</p></div>
+    </div>
+  </section>
+</main>
+
+<div id="playerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="playerModalTitle" hidden>
+  <div class="glass modal-card">
+    <span class="eyebrow">QUEM VAI CANTAR?</span>
+    <h2 id="playerModalTitle">Escolha o jogador</h2>
+    <p>Toque em um nome ou digite um novo. O nome é lembrado para a próxima vez.</p>
+    <div id="playerChips" class="player-chips" role="list"></div>
+    <label class="sr-only" for="playerName">Nome do jogador</label>
+    <input id="playerName" type="text" maxlength="40" autocomplete="off" placeholder="Digite seu nome...">
+    <div class="modal-actions">
+      <button id="playerCancel" class="secondary">Cancelar</button>
+      <button id="playerConfirm" class="primary">🎤 Cantar</button>
+    </div>
+  </div>
+</div>
+
+<div id="karaokeOverlay" class="karaoke-overlay" role="dialog" aria-modal="true" aria-label="Modo karaokê">
+  <div id="karaokeBackdrop" class="karaoke-backdrop" aria-hidden="true"></div>
+  <div class="karaoke-topbar">
+    <div class="live"><span aria-hidden="true"></span> AO VIVO</div>
+    <div class="karaoke-score">
+      <small>PONTUAÇÃO</small>
+      <strong id="score" aria-live="polite">0</strong>
+    </div>
+    <button id="karaokeSettingsBtn" class="exit-button" type="button"
+            aria-label="Abrir ajustes do karaokê" aria-expanded="false" aria-controls="karaokePanel" title="Ajustes">⚙ Ajustes</button>
+    <button id="stopKaraoke" class="exit-button">Sair ×</button>
+  </div>
+  <div class="karaoke-content">
+    <div id="stemsHint" class="karaoke-stems-hint" role="status" hidden>
+      🎵 Cantando com o áudio original — o instrumental entra sozinho quando estiver pronto.
+    </div>
+    <div class="karaoke-meta"><span class="eyebrow">MODO KARAOKÊ</span><h2 id="songTitle"></h2></div>
+    <div id="lyrics" class="lyrics"></div>
+    <div id="lyricsFim" class="lyrics-fim" role="status" hidden>♪ Fim da letra desta música</div>
+    <div id="feedback" class="feedback" role="status" aria-live="polite">Prepare sua voz</div>
+    <canvas id="pitchChart" aria-label="Gráfico de afinação: referência em verde, sua voz em azul"></canvas>
+      <div id="badge" class="badge" role="status" aria-live="polite"></div>
+      <small class="mic-warning">O microfone funciona apenas em localhost ou HTTPS. Use fones para evitar microfonia.</small>
+    </div>
+
+    <div id="karaokePanelBackdrop" class="karaoke-panel-backdrop" hidden></div>
+    <aside id="karaokePanel" class="karaoke-panel" aria-label="Ajustes do karaokê">
+      <div class="karaoke-panel-head">
+        <strong>Ajustes do karaokê</strong>
+        <button id="closeKaraokePanel" class="icon-button" type="button" aria-label="Fechar ajustes" title="Fechar">×</button>
+      </div>
+      <div class="karaoke-options">
+      <section class="option-group" aria-label="Sincronia da letra">
+        <span class="option-label">Sincronia</span>
+        <label class="slider-field">
+          <span class="slider-head">Ajuste da letra <output id="latencyValue">0,00s</output></span>
+          <input id="latencyAdjust" type="range" min="-8" max="8" step="0.05" value="0" aria-label="Ajuste da sincronia da letra">
+        </label>
+        <button id="autoSync" class="secondary" type="button" title="Alinha a letra à voz original da música (não ao microfone)">Sincronizar com a música</button>
+      </section>
+
+      <section class="option-group" aria-label="Ajustes de voz">
+        <span class="option-label">Voz</span>
+        <label class="switch">
+          <input id="monitorVoice" type="checkbox">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>Ouvir minha voz</span>
+        </label>
+        <label class="switch">
+          <input id="dspEnabled" type="checkbox">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>Efeitos de voz</span>
+        </label>
+        <label class="slider-field">
+          <span class="slider-head">Volume</span>
+          <input id="monitorVolume" type="range" min="0" max="0.6" step="0.01" value="0.18" aria-label="Volume do monitoramento">
+        </label>
+        <label class="slider-field">
+          <span class="slider-head">Reverb</span>
+          <input id="reverbAmount" type="range" min="0" max="0.8" step="0.01" value="0.18" aria-label="Quantidade de reverb">
+        </label>
+        <label class="slider-field">
+          <span class="slider-head">Eco</span>
+          <input id="delayAmount" type="range" min="0" max="0.5" step="0.01" value="0.12" aria-label="Quantidade de eco">
+        </label>
+      </section>
+
+      <section class="option-group" aria-label="Modo palco">
+        <span class="option-label">Palco</span>
+        <label class="switch">
+          <input id="stageMode" type="checkbox">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>Modo palco</span>
+        </label>
+        <div class="inline-row">
+          <button id="detectFeedback" class="secondary" type="button" hidden
+                  aria-label="Detectar frequência de microfonia" title="Detectar a frequência do apito e aplicar um filtro notch">Detectar apito</button>
+          <output id="feedbackFreq" class="feedback-freq" hidden>—</output>
+        </div>
+      </section>
+
+      <section class="option-group" aria-label="Sessão e gravação">
+        <span class="option-label">Sessão</span>
+        <label class="switch">
+          <input id="recordVoice" type="checkbox">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>Gravar voz</span>
+        </label>
+        <label class="switch">
+          <input id="duetMode" type="checkbox">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span>Modo dueto</span>
+        </label>
+        <input id="duetName" type="text" maxlength="40" placeholder="Nome do segundo cantor" hidden>
+        <select id="duetMic" hidden aria-label="Microfone do segundo cantor"><option value="">Segundo microfone</option></select>
+        <div class="inline-row">
+          <button id="downloadRecording" class="secondary" hidden>Baixar gravação</button>
+          <button id="renderRecording" class="secondary" hidden>M4A normalizado</button>
+          <button id="shareRecording" class="secondary" hidden>Compartilhar</button>
+        </div>
+      </section>
+      </div>
+    </aside>
+</div>
+
+<div id="playerQueueDrawer" class="player-queue-drawer" hidden
+     role="dialog" aria-modal="true" aria-label="Fila de reprodução">
+  <div class="player-queue-head">
+    <strong>Fila</strong>
+    <button class="icon-button" id="playerQueueClose" type="button" aria-label="Fechar fila" title="Fechar">×</button>
+  </div>
+  <p class="muted queue-hint">As músicas pedidas tocam em ordem — quem pede canta! <span class="tab-icon" style="font-size:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></span></p>
+  <div id="playerQueueList" class="player-queue-list" aria-live="polite"></div>
+  <div class="player-queue-foot">
+    <button class="primary" id="playerQueueSearch" type="button">Adicionar músicas</button>
+  </div>
+</div>
+
+<script src="/static/vendor/pitchy.min.js"></script>
+<script src="/static/vendor/qrcode-generator.js"></script>
+<script src="/static/offline.js?v=20261015i"></script>
+<script src="/static/app.js?v=20261016d"></script>
+<script src="/static/karaoke.js?v=20261016b"></script>
+<script>
+(function(){
+  // Menu drawer mobile para abas
+  var trigger = document.getElementById('mobileTabsTrigger');
+  var closeBtn = document.getElementById('mobileTabsClose');
+  var backdrop = document.getElementById('mobileTabsBackdrop');
+  var drawer = document.getElementById('mobileTabsDrawer');
+  var drawerItems = drawer.querySelectorAll('.drawer-tabs li');
+
+  function openDrawer(){
+    drawer.classList.add('open');
+    backdrop.classList.add('visible');
+    backdrop.hidden = false;
+    trigger.setAttribute('aria-expanded','true');
+  }
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    backdrop.classList.remove('visible');
+    setTimeout(function(){ backdrop.hidden = true; }, 280);
+    trigger.setAttribute('aria-expanded','false');
+  }
+  trigger.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+  drawerItems.forEach(function(item){
+    item.addEventListener('click', function(){
+      var tab = item.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+      var activeTab = document.querySelector('.tab[data-tab="'+tab+'"]');
+      var activePanel = document.getElementById(tab);
+      if(activeTab){ activeTab.classList.add('active'); activeTab.setAttribute('aria-selected','true'); }
+      if(activePanel){ activePanel.classList.add('active'); }
+      closeDrawer();
+    });
+  });
+
+  // Modo palco: toggle no body para esconder sidebar em tela cheia
+  var stageMode = document.getElementById('stageMode');
+  if(stageMode){
+    stageMode.addEventListener('change', function(){
+      document.body.classList.toggle('palco-ativo', stageMode.checked);
+    });
+  }
+
+  // Tema claro/escuro
+  var themeToggle = document.getElementById('themeToggle');
+  function temaAtual(){
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+  function aplicarTema(tema){
+    if(tema === 'light'){ document.documentElement.setAttribute('data-theme','light'); }
+    else { document.documentElement.removeAttribute('data-theme'); }
+    try { localStorage.setItem('karaoke-theme', tema); } catch(e){}
+    if(themeToggle){
+      themeToggle.setAttribute('aria-label', tema === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro');
+      themeToggle.setAttribute('title', tema === 'light' ? 'Tema escuro' : 'Tema claro');
+    }
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', tema === 'light' ? '#fafafa' : '#09090b');
+  }
+  if(themeToggle){
+    aplicarTema(temaAtual());
+    themeToggle.addEventListener('click', function(){
+      aplicarTema(temaAtual() === 'light' ? 'dark' : 'light');
+    });
+  }
+})();
+</script>
+</body>
+</html>

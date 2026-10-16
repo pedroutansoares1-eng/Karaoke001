@@ -1,0 +1,17 @@
+{
+  "name": "Vocalis — Karaokê Studio",
+  "short_name": "Vocalis",
+  "description": "Karaokê em rede local: fila compartilhada, letras sincronizadas e pontuação ao vivo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "lang": "pt-BR",
+  "categories": ["entertainment", "music"],
+  "icons": [
+    { "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
